@@ -1,0 +1,45 @@
+{
+  "name": "gulp-zorrosvg",
+  "version": "1.0.0",
+  "description": "Generate ZorroSVG alpha masks from PNGs.",
+  "main": "index.js",
+  "scripts": {
+    "test": "ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tannerhodges/gulp-zorrosvg.git"
+  },
+  "keywords": [
+    "gulpplugin",
+    "image",
+    "img",
+    "png",
+    "svg",
+    "zorro",
+    "zorrosvg"
+  ],
+  "author": {
+    "name": "Tanner Hodges",
+    "email": "austintannerhodges@gmail.com",
+    "url": "http://tannerhodges.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tannerhodges/gulp-zorrosvg/issues"
+  },
+  "homepage": "https://github.com/tannerhodges/gulp-zorrosvg#readme",
+  "dependencies": {
+    "chalk": "^1.1.3",
+    "gulp-util": "^3.0.8",
+    "path": "^0.12.7",
+    "plur": "^2.1.2",
+    "sharp": "^0.17.1",
+    "through2-concurrent": "^1.1.1"
+  },
+  "devDependencies": {
+    "ava": "^0.17.0",
+    "get-stream": "^2.1.0",
+    "pify": "^2.3.0"
+  }
+}
