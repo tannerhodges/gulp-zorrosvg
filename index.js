@@ -4,9 +4,39 @@ const path = require('path');
 const plur = require('plur');
 const sharp = require('sharp');
 const through = require('through2-concurrent');
+const async = require('async');
 
 const PLUGIN_NAME = require('./package.json').name;
 const VALID_EXTS = ['.png'];
+
+/**
+ * Get SVG content.
+ * @param  {Vinyl}   file
+ * @param  {Buffer}  output
+ * @param  {object}  info
+ * @return {Buffer}
+ */
+function getSvg(file, output, info) {
+  let newFile = new gutil.File({
+    cwd: file.cwd,
+    base: file.base,
+    path: file.path,
+    contents: new Buffer(`<svg width="${info.width}" height="${info.height/2}" viewBox="0 0 ${info.width} ${info.height/2}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <defs>
+    <filter id="zorrosvg" primitiveUnits="objectBoundingBox">
+      <feOffset in="SourceGraphic" result="bottom-half" dy="-0.5"></feOffset>
+      <feColorMatrix type="matrix" in="bottom-half" result="alpha-mask" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0"></feColorMatrix>
+      <feComposite in="SourceGraphic" in2="alpha-mask" operator="in"></feComposite>
+    </filter>
+  </defs>
+  <image width="100%" height="200%" filter="url(#zorrosvg)" xlink:href="data:image/jpeg;base64,${output.toString('base64')}"></image>
+</svg>`)
+  });
+
+  newFile.basename = newFile.basename.replace('.png', '.svg');
+
+  return newFile;
+}
 
 /**
  * Generate ZorroSVG alpha masks from PNGs.
@@ -69,12 +99,7 @@ module.exports = (options) => {
             return callback(new gutil.PluginError(PLUGIN_NAME, error, { showStack: true }));
           }
 
-          let newFile = new gutil.File({
-            cwd: file.cwd,
-            base: file.base,
-            path: file.path,
-            contents: output
-          });
+          let newFile = getSvg(file, output, info);
 
           totalFiles++;
 
@@ -82,6 +107,7 @@ module.exports = (options) => {
             gutil.log(`${PLUGIN_NAME}: ${chalk.green('✔')} ${chalk.blue(file.relative + ' -> ' + newFile.relative)}`);
           }
 
+          // TODO: Responsive sizes
           callback(null, newFile);
         });
     });
