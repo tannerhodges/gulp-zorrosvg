@@ -1,6 +1,6 @@
 # gulp-zorrosvg
 
-Generate ZorroSVG alpha masks from PNGs.
+Generate ZorroSVG files from PNGs.
 
 ## Install
 
