@@ -94,12 +94,88 @@ module.exports = (options) => {
       }
 
       // Create a luminance mask based on the image's alpha channel
-      for (var i = 0; i < buffer.length; i += 4) {
-        buffer[i + 0] = buffer[i + 3];
-        buffer[i + 1] = buffer[i + 3];
-        buffer[i + 2] = buffer[i + 3];
-        buffer[i + 3] = 255;
+      // for (var i = 0; i < buffer.length; i += 4) {
+      //   buffer[i + 0] = buffer[i + 3];
+      //   buffer[i + 1] = buffer[i + 3];
+      //   buffer[i + 2] = buffer[i + 3];
+      //   buffer[i + 3] = 255;
+      // }
+
+
+      // ------------------------------
+      // BEGIN ZORROSVG
+      // ------------------------------
+
+      // Based on Quasimondo's `createMaskedMap` function
+      // @see https://github.com/Quasimondo/QuasimondoJS/blob/ce7ffb317f7435940046d5ff46a7503f92efd328/zorrosvg/js/zorrosvgmaskmaker.js#L176-L277
+      let isLittleEndian;
+      let applyGammaCorrection = true;
+
+      try {
+        if (isLittleEndian == undefined) {
+          // Determine whether Uint32 is little- or big-endian.
+          var endianTest = new ArrayBuffer(4);
+          var e8 = new Uint8ClampedArray(endianTest);
+          var e32 = new Uint32Array(endianTest);
+          e32[0] = 0x000000ff;
+          isLittleEndian = (e8[3] === 0xff);
+        }
+      } catch (error) {
+        error.message = errorPrefix + error.message;
+        return callback(new gutil.PluginError(PLUGIN_NAME, error, { showStack: true }));
       }
+      console.log(isLittleEndian ? '✅  Yes, this is a Little Endian machine' : '❌  No, this is not a Little Endian machine');
+
+      var buf32 = new Uint32Array(buffer);
+      var l = buf32.length;
+      var l2 = l>>1;
+
+      if (!isLittleEndian) {
+        if (applyGammaCorrection) {
+          for (var i = l; --i >= l2;) {
+            // Gamma correction for semi transparent pixels:
+            var b = (Math.pow(((buf32[i] >>> 24) & 0xff) / 255,0.45 ) * 255) | 0;
+            buf32[i] = 0xff000000 | ( b << 16) | ( b << 8) | b;
+          }
+        } else {
+          for (var i = l; --i >= l2;) {
+            // No Gamma correction on some platforms
+            var b = (buf32[i] >>> 24) & 0xff;
+            buf32[i] = 0xff000000 | ( b << 16) | ( b << 8) | b;
+          }
+        }
+        for (i = l2; --i > -l;) {
+          buf32[i] |= 0xff000000;
+        }
+      } else {
+        if (applyGammaCorrection) {
+          for (var i = l; --i >= l2;) {
+            // Gamma correction for semi transparent pixels:
+            var b = (Math.pow(( buf32[i] & 0xff) / 255,0.45 ) * 255) | 0;
+            buf32[i] = 0xff | ( b << 24) | ( b << 16) | (b<<8);
+          }
+        } else {
+          for (var i = l; --i >= l2;) {
+            // No Gamma correction on some platforms
+            var b = buf32[i] & 0xff;
+            buf32[i] = 0xff | ( b << 24) | ( b << 16) | (b<<8);
+          }
+        }
+        for (i = l2; --i > -l;) {
+          buf32[i] |= 0xff;
+        }
+      }
+
+      // DEBUG
+      // console.log(buffer, buf32);
+      buffer = Buffer.from(buf32);
+      console.log(buffer);
+
+      // ------------------------------
+      // END ZORROSVG
+      // ------------------------------
+
+
 
       // Convert buffer back to a sharp instance
       sharp(buffer, { raw: { width: width, height: height, channels: channels } })
