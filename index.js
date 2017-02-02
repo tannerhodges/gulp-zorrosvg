@@ -111,7 +111,6 @@ module.exports = (options) => {
 
         // Resize the canvas to fit both images
         return image
-          .background({ r: 255, g: 255, b: 255, alpha: 1 })
           .extend({ top: 0, right: 0, bottom: info.height, left: 0 })
           // Paste the luminance mask at the bottom
           .overlayWith(buffer, { top: info.height, left: 0 })
