@@ -10,11 +10,11 @@ import zorroSvg from './';
 const fsPromise = pify(fs);
 
 const createFixture = async () => {
-  const buffer = await fsPromise.readFile('fixture.png');
+  const buffer = await fsPromise.readFile('test/water.png');
   const stream = zorroSvg();
 
   stream.end(new gutil.File({
-    path: path.join(__dirname, 'fixture.png'),
+    path: path.join(__dirname, 'test/water.png'),
     contents: buffer
   }));
 
@@ -30,7 +30,7 @@ test('generate alpha masks', async (t) => {
 
 test('skip unsupported images', async (t) => {
   const stream = zorroSvg();
-  stream.end(new gutil.File({path: path.join(__dirname, 'fixture.jpg')}));
+  stream.end(new gutil.File({path: path.join(__dirname, 'test/water.jpg')}));
   const file = await getStream.array(stream);
 
   t.is(file[0].contents, null);
