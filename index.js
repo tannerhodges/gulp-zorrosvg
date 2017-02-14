@@ -10,6 +10,15 @@ const PLUGIN_NAME = require('./package.json').name;
 const VALID_EXTS = ['.png'];
 
 /**
+ * Gamma correction for semi-transparent pixels.
+ * @param  {Number}  value
+ * @return {Number}
+ */
+function gammaCorrection(value) {
+  return (Math.pow(value / 255, 0.45) * 255) | 0;
+}
+
+/**
  * Get SVG content.
  * @param  {Buffer}  buffer
  * @param  {Object}  params  {cwd, base, path, width, height}
@@ -99,42 +108,19 @@ module.exports = (options) => {
           return callback(new gutil.PluginError(PLUGIN_NAME, error, { showStack: true }));
         }
 
-        // TOP HALF
+        // Make the original image fully opaque
         for (let i = 0; i < compositeBuffer.length / 2; i = i + 4) {
-          compositeBuffer[i + 0] = (Math.pow(compositeBuffer[i + 0] / 255, 0.45) * 255) | 0;
-          compositeBuffer[i + 1] = (Math.pow(compositeBuffer[i + 1] / 255, 0.45) * 255) | 0;
-          compositeBuffer[i + 2] = (Math.pow(compositeBuffer[i + 2] / 255, 0.45) * 255) | 0;
           compositeBuffer[i + 3] = 255;
         }
-        // BOTTOM HALF
+        // Create a luminance mask based on the original image's alpha channel
+        // Add gamma correction for semi-transparent pixels
         for (let i = compositeBuffer.length / 2; i < compositeBuffer.length; i = i + 4) {
-          let alpha = compositeBuffer[i + 3];
-          alpha = (Math.pow(alpha / 255, 0.45) * 255) | 0;
+          let alpha = gammaCorrection(compositeBuffer[i + 3]);
           compositeBuffer[i + 0] = alpha;
           compositeBuffer[i + 1] = alpha;
           compositeBuffer[i + 2] = alpha;
           compositeBuffer[i + 3] = 255;
         }
-
-// ORIGINAL
-// let buf32 = new Uint32Array(compositeBuffer);
-// let l = buf32.length;
-// let l2 = l >> 1;
-//
-// // Loop through the bottom half of the image
-// // Gamma correction for semi transparent pixels
-// for (let i = l; --i >= l2;) {
-//   let b = (Math.pow(((buf32[i] >>> 24) & 0xff) / 255, 0.45) * 255) | 0;
-//   buf32[i] = 0xff000000 | (b << 16) | (b << 8) | b;
-// }
-// // Loop through the top half of the image
-// // And then some?
-// for (let i = l2; --i > -l;) {
-//   buf32[i] |= 0xff000000;
-// }
-//
-// console.log(buf32);
-// compositeBuffer = Buffer.from(buf32);
 
         // Compress as JPG
         sharp(compositeBuffer, { raw: { width: compositeInfo.width, height: compositeInfo.height, channels: compositeInfo.channels } })
@@ -152,15 +138,6 @@ module.exports = (options) => {
             width: finalInfo.width,
             height: finalInfo.height
           });
-
-          // DEBUG
-          // let newFile = new gutil.File({
-          //   cwd: file.cwd,
-          //   base: file.base,
-          //   path: file.path,
-          //   contents: finalBuffer
-          // });
-          // newFile.basename = newFile.basename.replace('.png', '.jpg');
 
           totalFiles++;
 
