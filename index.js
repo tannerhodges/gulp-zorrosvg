@@ -33,7 +33,7 @@ function getSvg(buffer, params) {
   <defs>
     <filter id="zorrosvg" primitiveUnits="objectBoundingBox">
       <feOffset in="SourceGraphic" result="bottom-half" dy="-0.5"></feOffset>
-      <feColorMatrix type="matrix" in="bottom-half" result="luma-mask" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 1 0 0"></feColorMatrix>
+      <feColorMatrix type="matrix" in="bottom-half" result="luma-mask" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0"></feColorMatrix>
       <feComposite in="SourceGraphic" in2="luma-mask" operator="in"></feComposite>
     </filter>
   </defs>
