@@ -27,10 +27,10 @@ function gammaCorrection(value) {
  * @return {Buffer}
  */
 function getSvg(buffer, params) {
-  let newFile = new gutil.File({
+  return new gutil.File({
     cwd: params.cwd,
     base: params.base,
-    path: params.path,
+    path: params.path.replace('.png', '.svg'),
     contents: Buffer.from(`<svg width="${params.width}" height="${params.height / 2}" viewBox="0 0 ${params.width} ${params.height / 2}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
     <filter id="zorrosvg" primitiveUnits="objectBoundingBox">
@@ -42,10 +42,6 @@ function getSvg(buffer, params) {
   <image width="100%" height="200%" filter="url(#zorrosvg)" xlink:href="data:image/jpeg;base64,${buffer.toString('base64')}"></image>
 </svg>`)
   });
-
-  newFile.basename = newFile.basename.replace('.png', '.svg');
-
-  return newFile;
 }
 
 /**
