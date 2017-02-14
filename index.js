@@ -15,7 +15,7 @@ const VALID_EXTS = ['.png'];
  * @return {Number}
  */
 function gammaCorrection(value) {
-  return (Math.pow(value / 255, 0.45) * 255) | 0;
+  return Math.floor(Math.pow(value / 255, 0.45) * 255);
 }
 
 /**
