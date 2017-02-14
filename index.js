@@ -11,6 +11,7 @@ const VALID_EXTS = ['.png'];
 
 /**
  * Gamma correction for semi-transparent pixels.
+ * @see  https://github.com/Quasimondo/QuasimondoJS/blob/ce7ffb317f7435940046d5ff46a7503f92efd328/zorrosvg/js/zorrosvgmaskmaker.js#L223-L225
  * @param  {Number}  value
  * @return {Number}
  */
@@ -19,7 +20,8 @@ function gammaCorrection(value) {
 }
 
 /**
- * Get SVG content.
+ * Wrap image and luminance mask in a ZorroSVG file.
+ * @see https://github.com/Quasimondo/QuasimondoJS/blob/ce7ffb317f7435940046d5ff46a7503f92efd328/zorrosvg/js/zorrosvgmaskmaker.js#L400-L449
  * @param  {Buffer}  buffer
  * @param  {Object}  params  {cwd, base, path, width, height}
  * @return {Buffer}
@@ -48,11 +50,7 @@ function getSvg(buffer, params) {
 
 /**
  * Generate ZorroSVG luminance masks from PNGs.
- *
- * Based on the following plugins:
- * https://github.com/sindresorhus/gulp-imagemin/blob/master/index.js
- * https://github.com/mahnunchik/gulp-responsive/blob/master/lib/index.js
- *
+ * @see https://github.com/Quasimondo/QuasimondoJS/blob/ce7ffb317f7435940046d5ff46a7503f92efd328/zorrosvg/js/zorrosvgmaskmaker.js#L176-L277
  * @param  {Object}  options
  */
 module.exports = (options) => {
@@ -83,7 +81,8 @@ module.exports = (options) => {
 
     /**
      * ZorroSVG.
-     * Note: Assumes image has an alpha channel.
+     * @note Assumes image has an alpha channel.
+     * @see  https://github.com/Quasimondo/QuasimondoJS/tree/ce7ffb317f7435940046d5ff46a7503f92efd328/zorrosvg
      */
     let image = sharp(file.contents);
     let errorPrefix = `${chalk.red('✘')} File \`${file.relative}\`: `;
