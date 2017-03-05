@@ -1,7 +1,7 @@
 {
   "name": "gulp-zorrosvg",
   "version": "1.1.2",
-  "description": "Generate ZorroSVG alpha masks from PNGs.",
+  "description": "Generate ZorroSVG files from PNGs.",
   "main": "index.js",
   "scripts": {
     "test": "ava"
