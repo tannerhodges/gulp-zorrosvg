@@ -50,6 +50,8 @@ function getSvg(buffer, params) {
  * @param  {Object}  options
  */
 module.exports = (options) => {
+  "use strict";
+
   options = Object.assign({
     verbose: process.argv.indexOf('--verbose') !== -1
   }, options);
