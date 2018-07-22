@@ -10,16 +10,6 @@ const PLUGIN_NAME = require('./package.json').name;
 const VALID_EXTS = ['.png'];
 
 /**
- * Gamma correction for semi-transparent pixels.
- * @see  https://github.com/Quasimondo/QuasimondoJS/blob/ce7ffb317f7435940046d5ff46a7503f92efd328/zorrosvg/js/zorrosvgmaskmaker.js#L223-L225
- * @param  {Number}  value
- * @return {Number}
- */
-function gammaCorrection(value) {
-  return Math.floor(Math.pow(value / 255, 0.45) * 255);
-}
-
-/**
  * Wrap image and luminance mask in a ZorroSVG file.
  * @see https://github.com/Quasimondo/QuasimondoJS/blob/ce7ffb317f7435940046d5ff46a7503f92efd328/zorrosvg/js/zorrosvgmaskmaker.js#L400-L449
  * @param  {Buffer}  buffer
@@ -33,7 +23,7 @@ function getSvg(buffer, params) {
     path: params.path.replace('.png', '.svg'),
     contents: Buffer.from(`<svg width="${params.width}" height="${params.height / 2}" viewBox="0 0 ${params.width} ${params.height / 2}" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <defs>
-    <filter id="zorrosvg" primitiveUnits="objectBoundingBox">
+    <filter id="zorrosvg" primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB">
       <feOffset in="SourceGraphic" result="bottom-half" dy="-0.5"></feOffset>
       <feColorMatrix type="matrix" in="bottom-half" result="luma-mask" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0"></feColorMatrix>
       <feComposite in="SourceGraphic" in2="luma-mask" operator="in"></feComposite>
@@ -112,7 +102,7 @@ module.exports = (options) => {
         // Create a luminance mask based on the original image's alpha channel
         // Add gamma correction for semi-transparent pixels
         for (let i = compositeBuffer.length / 2; i < compositeBuffer.length; i = i + 4) {
-          let alpha = gammaCorrection(compositeBuffer[i + 3]);
+          let alpha = compositeBuffer[i + 3];
           compositeBuffer[i + 0] = alpha;
           compositeBuffer[i + 1] = alpha;
           compositeBuffer[i + 2] = alpha;
